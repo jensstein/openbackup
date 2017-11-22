@@ -13,7 +13,7 @@
             android:layout_width="wrap_content"
             android:paddingRight="5sp"
         />
-        <TextView 
+        <TextView
             android:id="@+id/label"
             android:layout_height="wrap_content"
             android:layout_width="0dp"
@@ -21,7 +21,7 @@
             android:textColor="#fff"
             android:textSize="16sp"
         />
-        <TextView 
+        <TextView
             android:id="@+id/versionCode"
             android:layout_height="wrap_content"
             android:layout_width="0dp"
@@ -45,14 +45,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-            <TextView 
+            <TextView
                 android:id="@+id/lastBackup"
                 android:layout_height="wrap_content"
                 android:layout_width="0dp"
                 android:layout_weight="0.7"
                 android:singleLine="true"
             />
-            <TextView 
+            <TextView
                 android:id="@+id/backupMode"
                 android:layout_height="wrap_content"
                 android:layout_width="0dp"
