@@ -1,88 +1,99 @@
-oandbackup
-=======
-[![pipeline status](https://gitlab.com/jensstein/oandbackup/badges/master/pipeline.svg)](https://gitlab.com/jensstein/oandbackup/commits/master)
+# OAndBackupX  <img align="left" src="https://raw.githubusercontent.com/machiav3lli/OAndBackupX/master/fastlane/metadata/android/en-US/images/icon.png" width="64" />
 
-a backup program for android. requires root and allows you to backup individual apps and their data.
-both backup and restore of individual programs one at a time and batch backup and restore of multiple programs are supported (with silent / unattended restores).  
-restoring system apps should be possible without requiring a reboot afterwards. oandbackup is also able to uninstall system apps. handling system apps in this way depends on whether /system/ can be remounted as writeable though, so this will probably not work for all devices (e.g. htc devices with the security flag on).  
-backups can be scheduled with no limit on the number of individual schedules and there is the possibility of creating custom lists from the list of installed apps.
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](COC.md) [![Main CI Workflow](https://github.com/machiav3lli/oandbackupx/workflows/Main%20CI%20Workflow/badge.svg?branch=master)](https://github.com/machiav3lli/oandbackupx/actions?query=workflow%3A%22Main+CI+Workflow%22)
 
-building
-========
-oandbackup is built with gradle. you need the android sdk, rust for building the oab-utils binary, and bash or a compatible shell for executing the oab-utils build script (patches for making this buildable on windows are welcomed).
-```
-./gradlew build
-# building only debug
-./gradlew assembleDebug
-# building for a specific abi target
-./gradlew assembleArm64
-```
+OAndBackupX is a fork of the famous OAndBackup with the aim to bring OAndBackup to 2020. For now the app is already fully rewritten, coming up would be making it robust and adding some lengthily planned features which could ease the backup/restore workflow with any device. Therefore all types of contribution are always welcome.
 
-version control
-==============
-oandbackup is handled on both gitlab and github:   
-https://gitlab.com/jensstein/oandbackup/   
-https://github.com/jensstein/oandbackup   
-debug apks are built by gitlab for each commit on every branch. the latest successful build can be found here (substitute $branch for the desired branch, e.g. master):   
-https://gitlab.com/jensstein/oandbackup/-/jobs/artifacts/$branch/browse/apks?job=build  
-(e.g. https://gitlab.com/jensstein/oandbackup/-/jobs/artifacts/master/browse/apks?job=build)  
-and signed release apks are built for every commit on the master branch:  
-https://gitlab.com/jensstein/oandbackup/-/jobs/artifacts/master/browse?job=sign
+Now on functionality of our App:
 
-busybox / toybox / oab-utils
-======
+* It requires root and allows you to backup individual apps and their data.
+* Both backup and restore of individual programs one at a time and batch backup and restore of multiple programs are supported.
+* Restoring system apps should be possible without requiring a reboot afterwards.
+* Backups can be scheduled with no limit on the number of individual schedules and there is the possibility of creating custom lists from the list of installed apps.
 
-a working busybox or toybox installation is required at the moment, but work is in progress to include all the needed functionality in a binary included in the apk. this program is called oab-utils and is written in rust.
+And here's the project's [FAQ](FAQ.md).
 
-you can get the source for busybox here: https://busybox.net/. you then need to cross-compile it for the architecture of your device (e.g. armv6). you can also try the binaries found here: https://busybox.net/downloads/binaries/.   
-if you have a working toolchain for your target device, you should only need to run the following commands on the busybox source:
-```
-    make defconfig # makes a config file with the default options
-    make menuconfig # brings up an ncurses-based menu for editing the options
-        # set the prefix for your toolchain under busybox settings -> build options 
-        # (remember the trailing dash, e.g. 'arm-unknown-linux-gnueabihf-')
-        # build as a static binary if needed
-    make
-```
-copy the busybox binary to your system, for example /system/xbin or /data/local, and make it executable. symlinking is not necessary for use with oandbackup. in the oandbackup preferences, provide the whole path to the busybox binary, including the binary's file name (e.g. /data/local/busybox).
+## Installation
 
-an apk build of oandbackup is available on f-droid's servers: https://f-droid.org/repository/browse/?fdid=dk.jens.backup
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.machiav3lli.backup/)
+[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/fdroid/index/apk/com.machiav3lli.backup)
+[<img src="badge_github.png" alt="Get it on GitHub" height="80">](https://github.com/machiav3lli/oandbackupx/releases)
 
-translations are currently being managed on transifex: https://www.transifex.com/projects/p/oandbackup/
-so please come help us there or spread the link if you want the app available in your own language.
+## Recommendation
 
-if you have any questions, critique, bug reports or suggestions, please write me an email: j.stn.oab@gmail.com
+A combination with your favourite sync solution (e.g. Syncthing, Nextcloud...)  keeping an encrypted copy of your apps and their data on your server or "stable" device could bring a lot of benefits and save you a lot of work while changing ROMs or just cleaning your mobile device.
 
-Cryptography
-============
-oandbackup supports encrypting the backups using an external cryptography provider.
-First you need to install an app which implements the openpgp-api, e.g. OpenKeychain: https://www.openkeychain.org/, and set up an identity.
-The "Cryptography" section of the preferences of oandbackup is then enabled and here you can choose which openpgp and identity to use.
+## Community
 
-special usage notes
-===========
- * long press an item in the list of apps to get the context menu. 
-   * delete backup: deletes the backup files for the chosen app.
-   * uninstall: somewhat more aggresive than a normal uninstall. in addition to doing a normal uninstall via android commands (via pm and thereby uninstalling for all users of the device), uninstalling from oandbackup deletes files the app might have left over in /data/app-lib/. this is useful, as a normal uninstall via android settings in rare circumstances can leave files there making a reinstall of the same app impossible while they are there.
-   this also works on system apps (although this is still somewhat experimental), which are deleted with a normal rm after the system partition has been remounted as read-write. it is afterwards remounted as read-only.
-   * enable / disable: uses the android script `pm` to enable or disable an app. disabling an app removes it from the normal user interface without uninstalling. this can be used for enabling or disabling an app for muliple users at a time (if the device has multiple users enabled). users are identified with an id: 0 is the first user (owner).
- * multiple users: multi-user is still somewhat experimental but should work. when restoring in a multi-user setting, `pm install -r $apk` gets called and subsequently the app is disabled for every user who has the app listed in /data/system/user/$user/package-restrictions.xml (unless the app is listed as enabled="1").   
-this can create problems for users installing the same app at some later point, but is necessary to prevent the app from being installed to all users at the same time. the context menu has an option to enable or disable apps which can be used if other users become unable to use a specific app due to disabling on restore.   
-enabling and disabling only works after an initial install (not necessarily from oandbackup) or restore of the app.
+In those groups we discuss the development of the App and test new versions:
 
-restoring data can also be done manually from the backup files. oandbackup stores the program data files in zip-compressed archives so they can be uncompressed and unpacked with any tool supporting that format (e.g. ```unzip dk.jens.backup.zip```). the unpacked files should then be placed in the directory indicated by "dataDir" in the log file stored with the backup files. this directory will usually be in /data/data/.  
-after restoring the files, the user and group id of the package need to be set. therefore data can only be restored for packages where an apk has been installed successfully. uid and gid can be obtained with the ```stat``` program (e.g. ```stat /data/data/dk.jens.backup```) and set with ```chown```. finally, the correct permissions need to be set with ```chmod```. oandbackup does this by setting 771 for all data files although this is probably not the best method. the subdirectory lib/ needs to be excluded from both ```chown``` and ```chmod```.  
-on android 6 / marshmallow (api 23) you would also need to use the ```restorecon``` command on the data directory (e.g. ```restorecon -R /data/data/dk.jens.backup```) or use another method of restoring the file security contexts.  
-the code which does these things are in the methods doRestore and setPermissions of ShellCommands.java.
+##### On Matrix: [OAndBackupX:Matrix.ORG](https://matrix.to/#/!PiXJUneYCnkWAjekqX:matrix.org?via=matrix.org)
 
-licenses
-=======
-oandbackup is licensed under the MIT license (see LICENSE.txt)
+##### On Telegram: [t.me/OAndBackupX](https://t.me/OAndBackupX)
 
-android-support-v4 is written by The Android Open Source Project and licensed under the Apache License, Version 2.0 (see NOTICE.txt in the libs directory)
+Our **[Code of Conduct](COC.md)** applies to the communication in the community same as for all contributers.
 
-openpgp-api-lib is written by Dominik Schürmann and licensed under Apache License, Version 2.0
+## Encryption
 
-author
-======
-jens stein
+If enabled the data backup will be encrypted with AES256 based on a password you can set in the settings, which you'll have to use when you want to restore the data. This way you can store your backups more securely, worrying less about their readability.
+
+## Compatibility
+
+Version 5.0.0 uses new encryption, new databases, fixes most of reported bugs in 4.0.0 and boost the performance to something near the 3.2.0's. With that said, it's incompatible with the older versions.
+
+Version 4.0.0 marks a full overhaul of the app structure and thus breaks compatibility with previous versions.
+
+Till the version 0.9.3 there's been no structural change in how the app handles backup/restore. So you could use that version to restore the old backups, then move to the newest version and renew your backups so that they'll stay compatible as long as the logic of the app doesn't radically change.
+
+## Changes & TODOs
+
+#### [Changelog](changelog.md)  &  [Known Issues](ISSUES.md)
+
+if you have some kotlin and android knowledge and like to contribute to the project, see the following **[development document](DEVDOC.md)** to see what is still need to be done, where a help could be needed or if you'd like to take on one of the fixes.
+
+The communication and each contribution in the project community should follow our **[Code of Conduct](COC.md)**.
+
+## Screenshots
+
+<p float="left">
+ <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="170" />
+ <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="170" />
+ <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="170" />
+ <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="170" />
+</p>
+
+## Building
+
+OAndBackupX is built with gradle, for that you need the android sdk.
+
+## Licenses <img align="right" src="agplv3.png" width="64" />
+
+OAndBackupX is licensed under the [GNU's Affero GPL v3](LICENSE.md).
+
+App's icon is based on an Icon made by [Catalin Fertu](https://www.flaticon.com/authors/catalin-fertu) from [www.flaticon.com](https://www.flaticon.com)
+
+Placeholders icon foreground made by [Smashicons](https://www.flaticon.com/authors/smashicons) from [www.flaticon.com](https://www.flaticon.com)
+
+## Credits
+
+[Jens Stein](https://github.com/jensstein) for his unbelievably valuable work on OAndBackup.
+
+[Nils](https://github.com/Tiefkuehlpizze), [Harald](https://github.com/hg42) and [Martin](https://github.com/Smojo) for their active contribution to the project.
+
+[Oliver Pepperell](https://github.com/opepp) for his contribution to the new anniversary design.
+
+Open-Source libs: [FastAdapter](https://github.com/mikepenz/FastAdapter), [RootBeer](https://github.com/scottyab/rootbeer), [NumberPicker](https://github.com/ShawnLin013/NumberPicker), [Apache Commons](https://commons.apache.org).
+
+### Languages: [<img align="right" src="https://hosted.weblate.org/widgets/oandbackupx/-/287x66-white.png" alt="Übersetzungsstatus" />](https://hosted.weblate.org/engage/oandbackupx/?utm_source=widget)
+
+[<img src="https://hosted.weblate.org/widgets/oandbackupx/-/multi-auto.svg" alt="Übersetzungsstatus" />](https://hosted.weblate.org/engage/oandbackupx/)
+
+The Translations are now being hosted by [Weblate.org](https://hosted.weblate.org/engage/oandbackupx/).
+
+Before that, translations were done analog/offline by those great people:
+
+[Kostas Giapis](https://github.com/tsiflimagas), [Urnyx05](https://github.com/Urnyx05), [Atrate](https://github.com/Atrate), [Tuchit](https://github.com/tuchit), [Linsui](https://github.com/linsui), [scrubjay55](https://github.com/scrubjay55), [Antyradek](https://github.com/Antyradek), [Ninja1998](https://github.com/NiNjA1998), [elea11](https://github.com/elea11).
+
+## Author
+
+Antonios Hazim
